@@ -59,6 +59,10 @@ architecture rtl of psi_common_sdp_ram is
   
   signal rd_pipe      : data_t(1 to RdLatency_g);
   
+  -- Prevent pipeline registers from being extracted into shift registers
+  attribute shreg_extract : string;
+  attribute shreg_extract of rd_pipe : signal is "no";
+  
 begin
   -- Synchronous Implementation
   g_sync : if not IsAsync_g generate
@@ -115,4 +119,3 @@ begin
   RdData <= rd_pipe(RdLatency_g);
   
 end;
-
