@@ -24,11 +24,12 @@ use work.psi_common_math_pkg.all;
 ------------------------------------------------------------------------------
 entity psi_common_sdp_ram is
   generic(
-    Depth_g    : positive := 1024;
-    Width_g    : positive := 16;
-    IsAsync_g  : boolean  := false;     -- True = Separate Rd clock is used (clk is WrClk in this case)
-    RamStyle_g : string   := "auto";    -- "auto", "distributed" or "block"
-    Behavior_g : string   := "RBW"      -- "RBW" = read-before-write, "WBR" = write-before-read
+    Depth_g     : positive := 1024;
+    Width_g     : positive := 16;
+    IsAsync_g   : boolean  := false;    -- True = Separate Rd clock is used (clk is WrClk in this case)
+    RamStyle_g  : string   := "auto";   -- "auto", "distributed" or "block"
+    Behavior_g  : string   := "RBW";    -- "RBW" = read-before-write, "WBR" = write-before-read
+    RdLatency_g : positive := 1
   );
   port(
     -- Control Signals
@@ -51,11 +52,13 @@ end entity;
 architecture rtl of psi_common_sdp_ram is
 
   -- memory array
-  type mem_t is array (Depth_g - 1 downto 0) of std_logic_vector(Width_g - 1 downto 0);
-  shared variable mem : mem_t := (others => (others => '0'));
+  type data_t is array (natural range<>) of std_logic_vector(Width_g - 1 downto 0);
+  shared variable mem : data_t(Depth_g - 1 downto 0) := (others => (others => '0'));
   attribute ram_style : string;
   attribute ram_style of mem : variable is RamStyle_g;
-
+  
+  signal rd_pipe      : data_t(1 to RdLatency_g);
+  
 begin
   -- Synchronous Implementation
   g_sync : if not IsAsync_g generate
@@ -64,7 +67,7 @@ begin
       if rising_edge(Clk) then
         if Behavior_g = "RBW" then
           if Rd = '1' then
-            RdData <= mem(to_integer(unsigned(RdAddr)));
+            rd_pipe(1) <= mem(to_integer(unsigned(RdAddr)));
           end if;
         end if;
         if Wr = '1' then
@@ -72,9 +75,12 @@ begin
         end if;
         if Behavior_g = "WBR" then
           if Rd = '1' then
-            RdData <= mem(to_integer(unsigned(RdAddr)));
+            rd_pipe(1) <= mem(to_integer(unsigned(RdAddr)));
           end if;
         end if;
+      
+        -- Read-data pipeline registers
+        rd_pipe(2 to RdLatency_g) <= rd_pipe(1 to RdLatency_g-1);
       end if;
     end process;
   end generate;
@@ -95,12 +101,18 @@ begin
     begin
       if rising_edge(RdClk) then
         if Rd = '1' then
-          RdData <= mem(to_integer(unsigned(RdAddr)));
+          rd_pipe(1) <= mem(to_integer(unsigned(RdAddr)));
         end if;
+        
+        -- Read-data pipeline registers
+        rd_pipe(2 to RdLatency_g) <= rd_pipe(1 to RdLatency_g-1);
       end if;
     end process;
 
   end generate;
-
+  
+  -- Output
+  RdData <= rd_pipe(RdLatency_g);
+  
 end;
 
