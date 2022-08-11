@@ -1,9 +1,33 @@
+## 2.17.1
+* Bugfixes
+  * Merge: psi_common_tdm_par_fill merged to psi_common_tdm_par 
+  * Add: Array of slv 512 bits
+  * Fix: fixed formatting in psi_common_spi_master
+  * Fix: Debouncer output assignment
+  * Name: psi_common_min_max_mean -> psi_common_min_max_sum 
+  * Doc: Sync FIFOs
+  
+## 2.17.0
+* Added Features
+  * Added *psi\_common\_tdm_par_fill* - update tdm par to cope with AXI
+* Bugfixes
+  * update static_pulse due to new egenric for ramp gene
+  * solve issue in sync fifo - outvld no assign to 1 prior reset is release
+  
+## 2.16.0
+* Added Features
+  	* Added *psi\_common\_find\_min\_max* - find min and max value withn a dedicated time period
+  	* Added *psi\_common\_min\_max\_mean* - quick statistics within a dedicated time period
+  	* Added new generic for init value into *psi\_common\_ramp\_gene* 
+* Bugfixes
+  	* Add support for explicit "+" signs in front of number and/or exponent
+
 ## 2.15.0
-*Added Features
+* Added Features
   * Added *psi\_common\_spi\_master\_cfg* - SPI master with dynamically change of the data length to forward on bus 
   * Added *psi\_common\_ser\_par* - Generic serialize to parallel
   * Added *psi\_common\_par\_ser* - Generic parallel to serialize
-*Bugfixes
+* Bugfixes
   * Remove VHDL 2008 statements in *psi\_common\_par\_tdm\_cfg*
   * Correct *psi\_common\_trigger\_digital* in case of one bit only
   
