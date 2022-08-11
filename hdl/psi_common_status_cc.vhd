@@ -34,11 +34,13 @@ entity psi_common_status_cc is
     RstInA  : in  std_logic;
     RstOutA : out std_logic;
     DataA   : in  std_logic_vector(DataWidth_g - 1 downto 0);
+    InitA   : in  std_logic_vector(DataWidth_g - 1 downto 0) := (others => '0');
     -- Clock Domain B
     ClkB    : in  std_logic;
     RstInB  : in  std_logic;
     RstOutB : out std_logic;
-    DataB   : out std_logic_vector(DataWidth_g - 1 downto 0)
+    DataB   : out std_logic_vector(DataWidth_g - 1 downto 0);
+    InitB   : in  std_logic_vector(DataWidth_g - 1 downto 0) := (others => '0')
   );
 end entity;
 
@@ -124,11 +126,13 @@ begin
       RstInA  => RstInA,
       RstOutA => RstIntA,
       DataA   => DataA,
+      InitA   => InitA,
       VldA    => VldA,
       ClkB    => ClkB,
       RstInB  => RstInB,
       RstOutB => RstIntB,
       DataB   => DataB,
+      InitB   => InitB,
       VldB    => VldB
     );
   RstOutA <= RstIntA;

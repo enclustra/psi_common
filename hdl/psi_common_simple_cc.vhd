@@ -31,12 +31,14 @@ entity psi_common_simple_cc is
     RstInA  : in  std_logic;
     RstOutA : out std_logic;
     DataA   : in  std_logic_vector(DataWidth_g - 1 downto 0);
+    InitA   : in  std_logic_vector(DataWidth_g - 1 downto 0) := (others => '0');
     VldA    : in  std_logic;
     -- Clock Domain B
     ClkB    : in  std_logic;
     RstInB  : in  std_logic;
     RstOutB : out std_logic;
     DataB   : out std_logic_vector(DataWidth_g - 1 downto 0);
+    InitB   : in  std_logic_vector(DataWidth_g - 1 downto 0) := (others => '0');
     VldB    : out std_logic
   );
 end entity;
@@ -62,11 +64,11 @@ begin
       ClkA    => ClkA,
       RstInA  => RstInA,
       RstOutA => RstAI,
-      PulseA(0)                                                                                                                                                                          => VldA,
+      PulseA(0) => VldA,
       ClkB    => ClkB,
       RstInB  => RstInB,
       RstOutB => RstBI,
-      PulseB(0)                                                                                                                                                                                                                                                                   => VldBI
+      PulseB(0) => VldBI
     );
   RstOutA <= RstAI;
   RstOutB <= RstBI;
@@ -76,7 +78,7 @@ begin
   begin
     if rising_edge(ClkA) then
       if RstAI = '1' then
-        DataLatchA <= (others => '0');
+        DataLatchA <= InitA;
       else
         if VldA = '1' then
           DataLatchA <= DataA;
@@ -90,7 +92,7 @@ begin
   begin
     if rising_edge(ClkB) then
       if RstBI = '1' then
-        DataB <= (others => '0');
+        DataB <= InitB;
         VldB  <= '0';
       else
         VldB <= VldBI;
